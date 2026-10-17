@@ -14,11 +14,11 @@ dotnet build .\src\PAFishPeekPlugin\PAFishPeekPlugin.csproj -c Release -p:PA_Gam
 
 The resulting DLL is written to `src/PAFishPeekPlugin/bin/Release/net6.0/`.
 
-## Bundled game-specific BepInEx runtime
+## Direct-install package
 
-`runtime/game-root` contains the Doorstop bootstrap files, `runtime/dotnet` contains the matching CoreCLR runtime, and `runtime/BepInEx` contains the game-specific BepInEx 6 IL2CPP runtime, Unity 2022.3.62 libraries, generated interop assemblies, and the active PA Fish Peek plugin DLL. The interop assemblies are tied to the Party Animals build and should be treated as a matching runtime pack rather than a generic BepInEx download. Logs, caches, disabled test plugins, and generated hash metadata are excluded.
+The repository root is arranged as a direct Party Animals game-root package. It contains the Doorstop bootstrap files, matching CoreCLR runtime, game-specific BepInEx 6 IL2CPP runtime, Unity 2022.3.62 libraries, generated interop assemblies, and the active PA Fish Peek plugin DLL. The interop assemblies are tied to the Party Animals build and should be treated as a matching runtime pack rather than a generic BepInEx download. Logs, caches, disabled test plugins, and generated hash metadata are excluded.
 
-To install the runtime pack, copy the files from `runtime/game-root` into the game root, copy `runtime/dotnet` into the game root, and copy the contents of `runtime/BepInEx` into the game's `BepInEx` directory. Do not overwrite a newer runtime without keeping a backup.
+Download the repository ZIP from GitHub, open the outer folder, and copy all of its contents into the Party Animals installation directory. The included `BepInEx`, `dotnet`, `winhttp.dll`, `doorstop_config.ini`, and `.doorstop_version` will then be in the locations expected by Doorstop. Do not overwrite a newer runtime without keeping a backup.
 
 ## Runtime
 
