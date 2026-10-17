@@ -16,15 +16,15 @@ The resulting DLL is written to `src/PAFishPeekPlugin/bin/Release/net6.0/`.
 
 ## Bundled game-specific BepInEx runtime
 
-`runtime/BepInEx` contains the game-specific BepInEx 6 IL2CPP runtime, Unity 2022.3.62 libraries, and generated interop assemblies used by this installation. The interop assemblies are tied to the Party Animals build and should be treated as a matching runtime pack rather than a generic BepInEx download. Logs, caches, disabled test plugins, and generated hash metadata are excluded.
+`runtime/game-root` contains the Doorstop bootstrap files, `runtime/dotnet` contains the matching CoreCLR runtime, and `runtime/BepInEx` contains the game-specific BepInEx 6 IL2CPP runtime, Unity 2022.3.62 libraries, generated interop assemblies, and the active PA Fish Peek plugin DLL. The interop assemblies are tied to the Party Animals build and should be treated as a matching runtime pack rather than a generic BepInEx download. Logs, caches, disabled test plugins, and generated hash metadata are excluded.
 
-To install the runtime pack, copy the contents of `runtime/BepInEx` into the game's `BepInEx` directory before installing the plugin DLL. Do not overwrite a newer runtime without keeping a backup.
+To install the runtime pack, copy the files from `runtime/game-root` into the game root, copy `runtime/dotnet` into the game root, and copy the contents of `runtime/BepInEx` into the game's `BepInEx` directory. Do not overwrite a newer runtime without keeping a backup.
 
 ## Runtime
 
 Copy the built DLL to `BepInEx/plugins/PAFishPeek/` in the game installation. In a fishing scene, press `F10` to enable prediction output and `F11` to change the encounter display scope.
 
-The plugin reads current fishing resources from the game installation when prediction is enabled. The repository does not include game files, extracted resources, crash dumps, logs, or compiled binaries.
+The plugin reads current fishing resources from the game installation when prediction is enabled. The repository does not include the game executable, `GameAssembly.dll`, extracted resources, crash dumps, or logs. It does include the game-specific BepInEx and CoreCLR runtime binaries required by the matching installation.
 
 ## Validation
 

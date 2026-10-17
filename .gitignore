@@ -21,6 +21,10 @@ runtime/BepInEx/_test_plugins_archive/
 runtime/BepInEx/LogOutput*.log
 runtime/BepInEx/ErrorLog.log
 !runtime/BepInEx/**/*.dll
+!runtime/BepInEx/plugins/
+!runtime/BepInEx/plugins/**/*.dll
+!runtime/dotnet/**/*.dll
+!runtime/game-root/*.dll
 Resource/
 *.user
 *.suo
