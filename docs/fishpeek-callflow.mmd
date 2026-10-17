@@ -1,0 +1,11 @@
+flowchart TD
+    crash["GameAssembly RVA 0xc1f7a9\nrcx=0 -> read 0x4c"] --> cause["IL2CPP metadata/native pointer path"]
+    cause --> gate["Disable native callback, scan and pointer enrichment"]
+    gate --> managed["Managed fishing setter"]
+    managed --> payload{"Payload has globalId and fish fields?"}
+    payload -- no --> drop["Drop event safely"]
+    payload -- yes --> queue["Queue managed encounter"]
+    queue --> predict["Scene default + cached rod prediction"]
+    predict --> overlay["Overlay message"]
+    gate --> launch["Startup validation"]
+    launch --> stable["Process responsive and no new crash event"]
