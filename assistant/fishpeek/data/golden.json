@@ -1,0 +1,411 @@
+[
+  {
+    "id": "meteor-eligible",
+    "tool": "explain_candidate",
+    "arguments": {
+      "fish_name": "流星鱼",
+      "context": {
+        "rod_id": "AE_006182_Rod",
+        "level": 6,
+        "location": 4,
+        "season": 4,
+        "weather": 64
+      }
+    },
+    "path": [
+      "data",
+      "eligible"
+    ],
+    "operator": "equals",
+    "expected": true
+  },
+  {
+    "id": "meteor-sunny-eligible",
+    "tool": "explain_candidate",
+    "arguments": {
+      "fish_name": "流星鱼",
+      "context": {
+        "rod_id": "AE_006182_Rod",
+        "level": 6,
+        "location": 4,
+        "season": 4,
+        "weather": 1
+      }
+    },
+    "path": [
+      "data",
+      "eligible"
+    ],
+    "operator": "equals",
+    "expected": true
+  },
+  {
+    "id": "meteor-weather-match",
+    "tool": "explain_candidate",
+    "arguments": {
+      "fish_name": "流星鱼",
+      "context": {
+        "rod_id": "AE_006182_Rod",
+        "level": 6,
+        "location": 4,
+        "season": 4,
+        "weather": 64
+      }
+    },
+    "path": [
+      "data",
+      "environment_matches",
+      "weather"
+    ],
+    "operator": "equals",
+    "expected": true
+  },
+  {
+    "id": "meteor-unknown-weather",
+    "tool": "explain_candidate",
+    "arguments": {
+      "fish_name": "流星鱼",
+      "context": {
+        "rod_id": "AE_006182_Rod",
+        "level": 6,
+        "location": 4,
+        "season": 4,
+        "weather": 0
+      }
+    },
+    "path": [
+      "data",
+      "environment_matches",
+      "weather"
+    ],
+    "operator": "equals",
+    "expected": false
+  },
+  {
+    "id": "meteor-wrong-level",
+    "tool": "explain_candidate",
+    "arguments": {
+      "fish_name": "流星鱼",
+      "context": {
+        "rod_id": "AE_006182_Rod",
+        "level": 3,
+        "location": 4,
+        "season": 4,
+        "weather": 64
+      }
+    },
+    "path": [
+      "data",
+      "reasons"
+    ],
+    "operator": "contains",
+    "expected": "level_mismatch"
+  },
+  {
+    "id": "meteor-wrong-location",
+    "tool": "explain_candidate",
+    "arguments": {
+      "fish_name": "流星鱼",
+      "context": {
+        "rod_id": "AE_006182_Rod",
+        "level": 6,
+        "location": 2,
+        "season": 4,
+        "weather": 64
+      }
+    },
+    "path": [
+      "data",
+      "reasons"
+    ],
+    "operator": "contains",
+    "expected": "location_mismatch"
+  },
+  {
+    "id": "meteor-wrong-rod",
+    "tool": "explain_candidate",
+    "arguments": {
+      "fish_name": "流星鱼",
+      "context": {
+        "rod_id": "AE_005259_Bamboo_Rod",
+        "level": 6,
+        "location": 4,
+        "season": 4,
+        "weather": 64
+      }
+    },
+    "path": [
+      "data",
+      "reasons"
+    ],
+    "operator": "contains",
+    "expected": "not_in_rod_whitelist"
+  },
+  {
+    "id": "radiodont-eligible",
+    "tool": "explain_candidate",
+    "arguments": {
+      "fish_name": "奇虾",
+      "context": {
+        "rod_id": "AE_006123_Rod",
+        "mode": "pond",
+        "level": 4,
+        "location": 128,
+        "season": 4,
+        "weather": 64
+      }
+    },
+    "path": [
+      "data",
+      "eligible"
+    ],
+    "operator": "equals",
+    "expected": true
+  },
+  {
+    "id": "radiodont-season-unknown",
+    "tool": "explain_candidate",
+    "arguments": {
+      "fish_name": "奇虾",
+      "context": {
+        "rod_id": "AE_006123_Rod",
+        "mode": "pond",
+        "level": 4,
+        "location": 128,
+        "season": 0,
+        "weather": 64
+      }
+    },
+    "path": [
+      "data",
+      "reasons"
+    ],
+    "operator": "contains",
+    "expected": "pond_season_required"
+  },
+  {
+    "id": "radiodont-spring",
+    "tool": "explain_candidate",
+    "arguments": {
+      "fish_name": "奇虾",
+      "context": {
+        "rod_id": "AE_006123_Rod",
+        "mode": "pond",
+        "level": 4,
+        "location": 128,
+        "season": 1,
+        "weather": 64
+      }
+    },
+    "path": [
+      "data",
+      "reasons"
+    ],
+    "operator": "contains",
+    "expected": "pond_season_mismatch"
+  },
+  {
+    "id": "weather-1",
+    "tool": "inspect_weather",
+    "arguments": {
+      "flag": 1
+    },
+    "path": [
+      "data",
+      "label"
+    ],
+    "operator": "equals",
+    "expected": "晴朗"
+  },
+  {
+    "id": "weather-2",
+    "tool": "inspect_weather",
+    "arguments": {
+      "flag": 2
+    },
+    "path": [
+      "data",
+      "label"
+    ],
+    "operator": "equals",
+    "expected": "雾"
+  },
+  {
+    "id": "weather-4",
+    "tool": "inspect_weather",
+    "arguments": {
+      "flag": 4
+    },
+    "path": [
+      "data",
+      "label"
+    ],
+    "operator": "equals",
+    "expected": "小雪"
+  },
+  {
+    "id": "weather-8",
+    "tool": "inspect_weather",
+    "arguments": {
+      "flag": 8
+    },
+    "path": [
+      "data",
+      "label"
+    ],
+    "operator": "equals",
+    "expected": "大雪"
+  },
+  {
+    "id": "weather-16",
+    "tool": "inspect_weather",
+    "arguments": {
+      "flag": 16
+    },
+    "path": [
+      "data",
+      "label"
+    ],
+    "operator": "equals",
+    "expected": "小雨"
+  },
+  {
+    "id": "weather-32",
+    "tool": "inspect_weather",
+    "arguments": {
+      "flag": 32
+    },
+    "path": [
+      "data",
+      "label"
+    ],
+    "operator": "equals",
+    "expected": "大雨"
+  },
+  {
+    "id": "weather-64",
+    "tool": "inspect_weather",
+    "arguments": {
+      "flag": 64
+    },
+    "path": [
+      "data",
+      "label"
+    ],
+    "operator": "equals",
+    "expected": "流星雨"
+  },
+  {
+    "id": "weather-1024",
+    "tool": "inspect_weather",
+    "arguments": {
+      "flag": 1024
+    },
+    "path": [
+      "data",
+      "label"
+    ],
+    "operator": "equals",
+    "expected": "未知"
+  },
+  {
+    "id": "weather-not-probability",
+    "tool": "search_knowledge",
+    "arguments": {
+      "query": "候选分数是概率吗"
+    },
+    "path": [
+      "data",
+      "matches"
+    ],
+    "operator": "title_contains",
+    "expected": "环境评分与概率"
+  },
+  {
+    "id": "hotkeys",
+    "tool": "search_knowledge",
+    "arguments": {
+      "query": "F10 F11 怎么用"
+    },
+    "path": [
+      "data",
+      "matches"
+    ],
+    "operator": "title_contains",
+    "expected": "安装与按键"
+  },
+  {
+    "id": "meteor-knowledge",
+    "tool": "search_knowledge",
+    "arguments": {
+      "query": "流星鱼需要什么天气"
+    },
+    "path": [
+      "data",
+      "matches"
+    ],
+    "operator": "title_contains",
+    "expected": "流星鱼与奇虾"
+  },
+  {
+    "id": "player-identity",
+    "tool": "search_knowledge",
+    "arguments": {
+      "query": "玩家数字昵称"
+    },
+    "path": [
+      "data",
+      "matches"
+    ],
+    "operator": "title_contains",
+    "expected": "临时玩家标签"
+  },
+  {
+    "id": "unknown-context",
+    "tool": "search_knowledge",
+    "arguments": {
+      "query": "未知天气怎么处理"
+    },
+    "path": [
+      "data",
+      "matches"
+    ],
+    "operator": "title_contains",
+    "expected": "未知条件"
+  },
+  {
+    "id": "deny-shell",
+    "tool": "execute_shell",
+    "arguments": {
+      "command": "whoami"
+    },
+    "path": [
+      "error"
+    ],
+    "operator": "equals",
+    "expected": "unknown_tool"
+  },
+  {
+    "id": "deny-path",
+    "tool": "read_runtime_events",
+    "arguments": {
+      "path": "../.env"
+    },
+    "path": [
+      "error"
+    ],
+    "operator": "equals",
+    "expected": "invalid_arguments"
+  },
+  {
+    "id": "absent-events",
+    "tool": "read_runtime_events",
+    "arguments": {},
+    "path": [
+      "data",
+      "events"
+    ],
+    "operator": "equals",
+    "expected": []
+  }
+]

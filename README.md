@@ -1,10 +1,10 @@
-# PA Fish Peek · 猛兽派对钓鱼信息插件
+# PA Fish Peek · 钓鱼信息插件与分析工作台
 
 面向《Party Animals / 猛兽派对》的 BepInEx IL2CPP 插件。读取钓鱼遭遇信息，显示玩家、钓点和鱼等级，并结合鱼竿档案与环境信息给出可能鱼种。
 
-插件版本 `2.8.16.57`。提供配套运行时、直接安装目录、中文文档与自动构建打包流程。
+插件版本 `2.8.16.58`，工作台版本 `0.1.0`。提供配套运行时、直接安装目录、中文检索、MCP 工具与 Agent 查询流程。
 
-[技术设计](docs/technical-design.md) · [验证与验收](docs/validation.md) · [扩展路线](docs/roadmap.md) · [开发与贡献](CONTRIBUTING.md)
+[工作台与 Codex 接入](docs/workbench.md) · [技术设计](docs/technical-design.md) · [验证与验收](docs/validation.md) · [后续规划](docs/roadmap.md)
 
 ## 功能
 
@@ -16,8 +16,28 @@
 | 环境排序 | 季节、时间、天气参与候选评分；池塘候选还检查季节 |
 | 秋季适配 | 包含秋季鱼竿、鱼种和流星雨天气相关调整 |
 | 故障处理 | callback / setter 原生 detour 禁用，保留弱句柄、限长队列和诊断日志 |
+| RAG 检索问答 | 中文 BM25 检索、SQLite 段落索引、来源引用与模型回答 |
+| MCP 接入 | 六个只读工具，可由 Codex 桌面端现有登录与已选模型调用 |
+| Agent 流程 | OpenAI 兼容工具调用循环，包含执行预算、错误恢复与 Trace |
+| 分析工作台 | 浏览器查询候选、查看依据、读取匿名遭遇与调用记录 |
 
 “可能是”表示规则候选。排序分数没有经过概率校准，不等于服务器真实出鱼概率，也不保证唯一识别鱼种。
+
+## 启动分析工作台
+
+```powershell
+pwsh -NoProfile -File .\scripts\start-workbench.ps1
+```
+
+打开 `http://127.0.0.1:8768`。首次启动脚本准备独立 Python 环境，需要 Python 3.11+。普通插件安装仍按下面步骤直接解压启动。
+
+使用 Codex 桌面端官方登录时，在另一终端执行：
+
+```powershell
+pwsh -NoProfile -File .\scripts\install-mcp.ps1
+```
+
+重新加载 MCP 或打开新会话，即可让桌面端已选模型使用 `fishpeek` 工具分析。示例问题、可选兼容接口配置和开发命令见[工作台说明](docs/workbench.md)。
 
 ## 安装与按键
 
@@ -96,6 +116,7 @@ pwsh -NoProfile -File .\scripts\check-package.ps1 -Path .\artifacts\PA-Fish-Peek
 
 ## 文档
 
+- [工作台、RAG、MCP 与 Agent 接入](docs/workbench.md)
 - [技术设计与执行链路](docs/technical-design.md)
 - [验证记录与实机验收](docs/validation.md)
 - [后续规划](docs/roadmap.md)

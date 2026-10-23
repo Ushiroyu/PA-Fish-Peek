@@ -1,0 +1,9 @@
+*
+!assistant/
+!assistant/**
+assistant/.env
+assistant/.env.*
+assistant/.state/
+assistant/**/__pycache__/
+assistant/.pytest_cache/
+assistant/*.egg-info/

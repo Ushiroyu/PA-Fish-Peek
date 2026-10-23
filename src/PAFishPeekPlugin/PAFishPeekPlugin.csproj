@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <Compile Include="FishPeekPlugin.cs" />
+    <Compile Include="FishPeekPlugin.Events.cs" />
     <Compile Include="FishPeekPlugin.ContextPrediction.cs" />
     <Compile Include="FishLevelData.cs" />
     <Compile Include="FishContextData.cs" />

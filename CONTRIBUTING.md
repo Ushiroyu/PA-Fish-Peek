@@ -17,3 +17,7 @@
 提供游戏/插件版本、安装方式、场景、操作、预期和实际。日志只保留必要片段，去除玩家昵称、客户端标识、账号和不必要的本机路径。
 
 构建成功、插件加载与实机行为分别记录；进程有响应不足以证明多人遭遇显示正确。
+
+## 工作台修改
+
+鱼种、鱼竿表变更后，执行 `python scripts/export-catalog.py` 更新随包快照，再用 `--check` 核对一致性。工作台测试运行 `python -m pytest assistant/tests -q`，领域与检索评测运行 `python -m fishpeek.evaluate`。工具 Schema、知识段落和模型协议的变更应补充对应样例。事件写入通道可运行 `dotnet run --project tests/EventJournal/EventJournal.csproj -c Release` 独立检查。

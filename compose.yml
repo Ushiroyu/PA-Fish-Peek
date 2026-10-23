@@ -1,0 +1,17 @@
+services:
+  workbench:
+    build:
+      context: .
+      dockerfile: assistant/Dockerfile
+    ports:
+      - '127.0.0.1:8768:8768'
+    environment:
+      FISHPEEK_BASE_URL: ${FISHPEEK_BASE_URL:-https://api.openai.com/v1}
+      FISHPEEK_MODEL: ${FISHPEEK_MODEL:-}
+      FISHPEEK_API_KEY: ${FISHPEEK_API_KEY:-}
+      FISHPEEK_EVENTS_FILE: /events/encounters.jsonl
+    volumes:
+      - workbench-state:/app/.state
+      - ./BepInEx/fishpeek:/events:ro
+volumes:
+  workbench-state:

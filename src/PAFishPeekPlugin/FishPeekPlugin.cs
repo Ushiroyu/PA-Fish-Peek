@@ -24,7 +24,7 @@ public sealed partial class FishPeekPlugin : BasePlugin
 {
     public const string PluginGuid = "local.partyanimals.fishpeek";
     public const string PluginName = "PA Fish Peek";
-    public const string PluginVersion = "2.8.16.57";
+    public const string PluginVersion = "2.8.16.58";
 
     private const int MaxScanAttempts = 80;
     private const float ScanIntervalSeconds = 2f;
@@ -240,6 +240,7 @@ public sealed partial class FishPeekPlugin : BasePlugin
     public override void Load()
     {
         _log = Log;
+        StartEventJournal();
         _harmony = new Harmony(PluginGuid);
         TryEnableUtf8Console();
 
@@ -268,6 +269,7 @@ public sealed partial class FishPeekPlugin : BasePlugin
 
     public override bool Unload()
     {
+        StopEventJournal();
         DestroyOverlayUi();
         ReleaseAllNativeControllerHandles();
 
@@ -2422,6 +2424,8 @@ public sealed partial class FishPeekPlugin : BasePlugin
                 _playerLastEmitTick.Clear();
             }
         }
+
+        RecordEncounter(playerLocalId, tier, level, bodyType);
 
         if (!ShouldDisplayBiteInfo(playerLocalId))
         {

@@ -1,6 +1,6 @@
 # 技术设计
 
-本文描述当前 `2.8.16.57` 实现；未来方案见[路线图](roadmap.md)。
+本文描述插件 `2.8.16.58` 与工作台 `0.1.0`。工作台使用方法见[接入说明](workbench.md)。
 
 ## 执行链路
 
@@ -16,6 +16,13 @@ flowchart TD
     data["鱼种、鱼竿与环境数据"] --> context
     context --> rules["候选筛选与排序"]
     rules --> output["TextMeshPro 提示与日志"]
+    queue --> journal["匿名快照，有界队列，后台写入"]
+    journal --> tools["Python 只读工具"]
+    snapshot["76 种鱼 / 17 个鱼竿档案快照"] --> tools
+    knowledge["SQLite 中文段落索引 / BM25"] --> tools
+    tools --> mcp["MCP → Codex 桌面端模型"]
+    tools --> agent["兼容接口 Agent → 步骤预算与 Trace"]
+    tools --> web["本地浏览器查询"]
 ```
 
 单独的 Mermaid 文件：[fishpeek-callflow.mmd](fishpeek-callflow.mmd)。旧图描述托管观察器，现按当前主线程原生轮询路径修正。
@@ -25,6 +32,7 @@ flowchart TD
 | 文件 | 职责 |
 | --- | --- |
 | `FishPeekPlugin.cs` | 生命周期、主线程驱动、控制器发现、原生读取、玩家映射、队列、热键与 UI |
+| `FishPeekPlugin.Events.cs` | 匿名快照、有界队列、后台落盘、文件轮转和写入故障隔离 |
 | `FishPeekPlugin.ContextPrediction.cs` | 数据处理、上下文、鱼竿识别、地点缓存与候选计算 |
 | `FishLevelData.cs` | 内置鱼等级表 |
 | `FishContextData.cs` | 内置鱼种环境和地点权重 |
@@ -32,6 +40,8 @@ flowchart TD
 | `BuiltInExactRodProfilesData.cs` | 精确鱼竿档案，通过 UID、GUID 或名称查找 |
 
 这些文件通过 `partial` 共同组成插件类。
+
+工作台模块位于 `assistant/fishpeek/`：`rules.py` 管理显式条件计算，`retrieval.py` 管理段落检索，`tools.py` 统一工具 Schema 与校验，`mcp_server.py` 暴露协议工具，`agent.py` 管理模型循环与 Trace，`api.py` 提供网页和 HTTP 接口。
 
 ## 候选推断
 
@@ -44,6 +54,8 @@ flowchart TD
 天气主要是评分信号，不能概括为所有鱼都经过天气硬过滤；分数也不是出鱼概率。
 
 精确鱼竿候选为空时，可能重试不指定地点；分类候选为空时可能尝试另一种轻重竿分类。这些放宽分支提升提示覆盖率，也带来候选解释的需要。后续应记录原始上下文、回退原因与候选排除原因。
+
+工作台采用严格显式条件查询，每个候选返回排除原因、环境匹配和分数，保持调用上下文不变，便于与插件提示对照。
 
 ## 数据处理
 

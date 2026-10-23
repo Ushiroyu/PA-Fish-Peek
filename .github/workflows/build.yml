@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'src/**'
+      - 'tests/EventJournal/**'
       - 'scripts/**'
       - 'BepInEx/**'
       - 'dotnet/**'
@@ -29,6 +30,8 @@ jobs:
       - name: Build plugin and update package copy
         shell: pwsh
         run: ./scripts/build.ps1 -UpdateBundledPlugin
+      - name: Check event journal lifecycle
+        run: dotnet run --project tests/EventJournal/EventJournal.csproj -c Release
       - name: Package and check installation layout
         shell: pwsh
         run: ./scripts/package.ps1
