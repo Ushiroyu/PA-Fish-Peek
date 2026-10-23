@@ -27,3 +27,4 @@ BepInEx/ErrorLog.log
 Resource/
 *.user
 *.suo
+artifacts/

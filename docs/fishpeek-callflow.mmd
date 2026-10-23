@@ -1,11 +1,14 @@
 flowchart TD
-    crash["GameAssembly RVA 0xc1f7a9\nrcx=0 -> read 0x4c"] --> cause["IL2CPP metadata/native pointer path"]
-    cause --> gate["Disable native callback, scan and pointer enrichment"]
-    gate --> managed["Managed fishing setter"]
-    managed --> payload{"Payload has globalId and fish fields?"}
-    payload -- no --> drop["Drop event safely"]
-    payload -- yes --> queue["Queue managed encounter"]
-    queue --> predict["Scene default + cached rod prediction"]
-    predict --> overlay["Overlay message"]
-    gate --> launch["Startup validation"]
-    launch --> stable["Process responsive and no new crash event"]
+    load["加载插件，挂接 EventSystem.Update"] --> toggle["F10 首次开启检测与输出"]
+    toggle --> tables["预热资源表与天气；缺失时回退内置表"]
+    toggle --> discover["低频发现控制器，缓存弱句柄"]
+    discover --> poll["主线程逐帧读取 fishJustEncounteredParam"]
+    poll --> valid{"有可解析的新遭遇？"}
+    valid -- 否 --> poll
+    valid -- 是 --> queue["去重，放入限长队列"]
+    queue --> scope{"输出开启且符合 F11 范围？"}
+    scope -- 否 --> skip["不输出本次提示"]
+    scope -- 是 --> context["解析玩家、钓点、鱼竿与环境"]
+    tables --> context
+    context --> candidates["档案或分类白名单，等级与地点筛选，环境评分"]
+    candidates --> display["显示等级与候选，无候选时保留基础提示"]

@@ -1,0 +1,39 @@
+name: Build and package
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'scripts/**'
+      - 'BepInEx/**'
+      - 'dotnet/**'
+      - 'doorstop_config.ini'
+      - 'winhttp.dll'
+      - '.doorstop_version'
+      - '.github/workflows/build.yml'
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Build plugin and update package copy
+        shell: pwsh
+        run: ./scripts/build.ps1 -UpdateBundledPlugin
+      - name: Package and check installation layout
+        shell: pwsh
+        run: ./scripts/package.ps1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PA-Fish-Peek-direct-install
+          path: artifacts/PA-Fish-Peek-direct-install.zip
+          if-no-files-found: error

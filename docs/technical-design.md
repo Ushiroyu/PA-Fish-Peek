@@ -1,0 +1,62 @@
+# 技术设计
+
+本文描述当前 `2.8.16.57` 实现；未来方案见[路线图](roadmap.md)。
+
+## 执行链路
+
+```mermaid
+flowchart TD
+    boot["Doorstop / CoreCLR / BepInEx"] --> tick["EventSystem.Update 主线程入口"]
+    tick --> enable{"F10 已启用检测？"}
+    enable -- 是 --> discover["每 0.75 秒发现控制器，缓存弱句柄"]
+    discover --> read["逐帧读取 fishJustEncounteredParam"]
+    read --> queue["遭遇去重，队列上限 128"]
+    queue --> scope{"输出开启且符合 F11 范围？"}
+    scope -- 是 --> context["玩家 / 钓点 / 鱼竿 / 环境"]
+    resources["基础与秋季导出 JSON，缺失时用内置表"] --> context
+    context --> rules["候选筛选与排序"]
+    rules --> output["TextMeshPro 提示与日志"]
+```
+
+单独的 Mermaid 文件：[fishpeek-callflow.mmd](fishpeek-callflow.mmd)。旧图描述托管观察器，现按当前主线程原生轮询路径修正。
+
+## 源码职责
+
+| 文件 | 职责 |
+| --- | --- |
+| `FishPeekPlugin.cs` | 生命周期、主线程驱动、控制器发现、原生读取、玩家映射、队列、热键与 UI |
+| `FishPeekPlugin.ContextPrediction.cs` | 资源解析、上下文、鱼竿识别、地点缓存与候选计算 |
+| `FishLevelData.cs` | 内置鱼等级表 |
+| `FishContextData.cs` | 内置鱼种环境和地点权重 |
+| `RodFishCategoryData.cs` | 模式与轻重竿分类白名单 |
+| `BuiltInExactRodProfilesData.cs` | 精确鱼竿档案，通过 UID、GUID 或资源名查找 |
+
+这些文件属于同一个 `partial` 插件类，还未形成可独立测试的领域类库。
+
+## 候选推断
+
+1. 从遭遇读取等级，结合玩家和钓点缓存建立上下文。
+2. 优先精确鱼竿档案，否则使用模式与轻重竿分类白名单。
+3. 等级和地点参与筛选；池塘还要求季节匹配。
+4. 季节、时间、天气匹配数及地点权重参与排序。
+5. 无候选时保留玩家、地点和等级基础提示。
+
+天气主要是评分信号，不能概括为所有鱼都经过天气硬过滤；分数也不是出鱼概率。
+
+精确鱼竿候选为空时，可能重试不指定地点；分类候选为空时可能尝试另一种轻重竿分类。这些放宽分支提升提示覆盖率，也带来候选解释的需要。后续应记录原始上下文、回退原因与候选排除原因。
+
+## 数据优先级
+
+- 资源入口要求基础 `PartyAnimalsAsset/MonoBehaviour` 和 `path_id.txt` 存在；秋季目录在该入口下补充读取。
+- 同名秋季鱼竿覆盖关系见[历史审计](fishpeek-data-audit-20261017.md)。
+- 运行时分类白名单会合并内置白名单，并非整体替换。
+- `TryGetFishLevelByName` 先查内置等级，查不到才查资源等级；运行时表并非始终优先。
+- 读取失败存在内置回退，因此“没有报错”不足以证明用了最新资源。
+
+## 运行边界
+
+当前 `EnableNativeEncounterHook=false`，但 `EnableNativeEncounterPolling=true`。轮询仍包含 IL2CPP 方法发现、调用和原生内存读取；弱句柄、内存页检查和主线程执行不能证明生命周期和原生调用始终安全。原生访问冲突也不能依赖普通 `try/catch` 保证恢复。
+
+F10 关闭输出后，已启用的轮询继续运行。昵称未就绪时所有玩家模式使用临时标签；地点存在缓存或模式默认值回退，展示值不一定都来自当前帧直接观测。
+
+已有日志与局部计数器；尚无结构化 Trace、统一指标、离线回放或自动效果评测。Interop 更新和 Unity 库下载行为受配套 BepInEx 配置控制。
