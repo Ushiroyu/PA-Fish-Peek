@@ -38,6 +38,9 @@ async def test_mcp_initialize_list_and_call_in_real_subprocess(config):
                 listed = await session.list_tools()
                 assert len(listed.tools) == 6
                 assert all(tool.annotations.readOnlyHint for tool in listed.tools)
+                schemas = {tool.name: tool.inputSchema for tool in listed.tools}
+                assert schemas["search_knowledge"]["properties"]["limit"]["maximum"] == 6
+                assert schemas["read_runtime_events"]["properties"]["limit"]["maximum"] == 50
                 prompts = await session.list_prompts()
                 assert prompts.prompts[0].name == "fishing_analysis"
                 result = await session.call_tool("explain_candidate", {"fish_name": "流星鱼", "context": {
@@ -46,4 +49,4 @@ async def test_mcp_initialize_list_and_call_in_real_subprocess(config):
                 parsed = json.loads(result.content[0].text)
                 assert parsed["ok"] and parsed["data"]["eligible"]
                 bad = await session.call_tool("read_runtime_events", {"limit": 1000})
-                assert not json.loads(bad.content[0].text)["ok"]
+                assert bad.isError

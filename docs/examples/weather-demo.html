@@ -1,0 +1,358 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PA Fish Peek · MCP 查询演示</title><style>
+body{margin:0;background:#f4f6fa;color:#172333;font:16px/1.7 system-ui,sans-serif}main{max-width:1050px;margin:auto;padding:36px 24px}
+h1{font-size:30px;margin:8px 0}h2{font-size:21px}.tag{color:#226b55;font-weight:700}.meta{color:#617084;font-size:14px}
+section{background:white;border:1px solid #dce3eb;border-radius:14px;padding:20px 26px;margin:20px 0}
+table{border-collapse:collapse;width:100%}th,td{text-align:left;padding:12px;border-bottom:1px solid #e3e8ef}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.8 ui-monospace,monospace}summary{cursor:pointer;padding:12px 0;color:#295baa}
+.answer{white-space:pre-wrap;overflow-wrap:anywhere}.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}.grid section{margin:0}
+@media(max-width:700px){.grid{grid-template-columns:1fr}main{padding:16px}section{padding:16px}}
+</style><main><div class="tag">PA FISH PEEK · 真实模型 / MCP 调用记录</div><h1>天气改变，候选与分数如何变化？</h1>
+<p class="meta">记录核验于 2026-10-23 14:39（北京时间） · 请求模型 gpt-6.1-sol<br>6 次工具调用 · 1 次参数错误已恢复 · 7 项记录核验通过</p>
+<div class="grid"><section><h2>固定查询条件</h2><p>AE_006182_Rod · 河边模式<br>6 级 · 岸边 4 · 秋季 4 · 时间未知</p><p>仅将天气由流星雨 64 改为晴朗 1。</p></section>
+<section><h2>工具实际返回</h2><table><tr><th>天气</th><th>候选数</th><th>流星鱼</th><th>分数</th></tr><tr><td>流星雨</td><td>2</td><td>保留</td><td>3.5</td></tr><tr><td>晴朗</td><td>2</td><td>保留</td><td>1.8</td></tr></table><p class="meta">环境排序分数，不是出鱼概率。</p></section></div>
+<section><h2>模型最终回答</h2><div class="answer">**晴朗时，流星鱼仍在候选中；score 从 3.5 降至 1.8，减少 1.7，排名仍为第 2。**
+
+已先检索规则，再实际查询两种天气的候选，并分别调用流星鱼解释工具。固定条件为 `AE_006182_Rod / route / level=6 / location=4 / season=4 / time=0`；工具返回的默认 `accessory=2` 在两次查询中一致。
+
+| 候选 | 流星雨 weather=64 | 晴朗 weather=1 | 排名变化 |
+|---|---:|---:|---|
+| 罗汉鱼 | 95.0 | 180.0 | 第 1 → 第 1 |
+| 流星鱼 | 3.5 | 1.8 | 第 2 → 第 2 |
+
+两次均返回 2 个候选。流星鱼均为 `eligible=true`，排除原因均为空。解释结果显示：
+
+- 流星鱼等级为 6，地点掩码为 12，包含岸边位 4；该鱼竿白名单包含流星鱼。
+- 秋季匹配始终为 `true`；`time=0` 表示未知，两次时间匹配均为 `false`。
+- 天气匹配由 `true` 变为 `false`，分数随之降低，但没有被排除。
+
+规则依据及工具返回的真实来源：
+
+- `knowledge/fishing.md:L3`：候选计算以鱼竿白名单、等级和地点为基础。
+- `knowledge/fishing.md:L7`：流星鱼的等级、地点、秋季、流星雨条件及鱼竿白名单说明。
+- `knowledge/fishing.md:L11`：天气主要参与环境评分；晴朗时不应仅因天气不匹配排除流星鱼，排序分数不是出鱼概率。
+- `knowledge/fishing.md:L15`：岸边=4、秋季=4、流星雨=64、晴朗=1，0 表示未知。
+- 流星鱼 catalog：`catalog:plugin-2.8.16.58:流星鱼`
+- 罗汉鱼 catalog：`catalog:plugin-2.8.16.58:罗汉鱼`
+
+以上是显式条件下的候选与排序结果，**score 不是概率，也不能据此判断实时游戏中的出鱼状态**。</div></section>
+<section><h2>展开查看真实工具输入与输出</h2><details><summary>1. search_knowledge</summary><pre>{
+  &quot;tool&quot;: &quot;search_knowledge&quot;,
+  &quot;arguments&quot;: {
+    &quot;query&quot;: &quot;候选 硬筛选 环境评分 天气 流星鱼 time=0&quot;,
+    &quot;limit&quot;: 8
+  },
+  &quot;output&quot;: {
+    &quot;ok&quot;: false,
+    &quot;error&quot;: &quot;invalid_arguments&quot;,
+    &quot;layer&quot;: &quot;mcp_schema&quot;
+  },
+  &quot;protocol_status&quot;: &quot;failed&quot;,
+  &quot;protocol_error&quot;: &quot;Error executing tool search_knowledge: 1 validation error for search_knowledgeArguments\nlimit\n  Input should be less than or equal to 6 [type=less_than_equal, input_value=8, input_type=int]\n    For further information visit https://errors.pydantic.dev/2.14/v/less_than_equal&quot;
+}</pre></details><details><summary>2. search_knowledge</summary><pre>{
+  &quot;tool&quot;: &quot;search_knowledge&quot;,
+  &quot;arguments&quot;: {
+    &quot;query&quot;: &quot;候选 硬筛选 环境评分 天气 流星鱼 time=0&quot;,
+    &quot;limit&quot;: 6
+  },
+  &quot;output&quot;: {
+    &quot;ok&quot;: true,
+    &quot;data&quot;: {
+      &quot;matches&quot;: [
+        {
+          &quot;id&quot;: &quot;fishing:11&quot;,
+          &quot;source&quot;: &quot;knowledge/fishing.md:L11&quot;,
+          &quot;title&quot;: &quot;环境评分与概率&quot;,
+          &quot;text&quot;: &quot;季节、时间和天气匹配参与环境分数；地点权重和鱼竿权重参与排序。天气主要是评分信号，晴朗时不应仅因天气不匹配就把流星鱼排除。池塘另有季节匹配要求。排序分数不是服务器出鱼概率，不表示唯一识别鱼种。&quot;,
+          &quot;score&quot;: 26.3073
+        },
+        {
+          &quot;id&quot;: &quot;fishing:7&quot;,
+          &quot;source&quot;: &quot;knowledge/fishing.md:L7&quot;,
+          &quot;title&quot;: &quot;流星鱼与奇虾&quot;,
+          &quot;text&quot;: &quot;流星鱼对应等级 6、地点掩码 12（岸边 4 与河中央 8）、秋季位 4、天气位 64（流星雨）。精确鱼竿 AE_006182_Rod 的白名单包含流星鱼。奇虾对应等级 4、池塘地点 128、秋季位 4、流星雨天气位 64，AE_006123_Rod 的白名单包含奇虾。具体条件应通过候选解释工具核对。&quot;,
+          &quot;score&quot;: 16.6798
+        },
+        {
+          &quot;id&quot;: &quot;fishing:19&quot;,
+          &quot;source&quot;: &quot;knowledge/fishing.md:L19&quot;,
+          &quot;title&quot;: &quot;未知条件&quot;,
+          &quot;text&quot;: &quot;未知天气不增加天气匹配分；未知具体地点时按模式地点集合筛选。池塘季节为 0 时，解释结果提示补充季节。未知鱼竿或鱼名会返回参数错误，工具不会擅自选择另一根鱼竿。&quot;,
+          &quot;score&quot;: 13.0196
+        },
+        {
+          &quot;id&quot;: &quot;fishing:15&quot;,
+          &quot;source&quot;: &quot;knowledge/fishing.md:L15&quot;,
+          &quot;title&quot;: &quot;地点与天气标记&quot;,
+          &quot;text&quot;: &quot;河湾 1、码头 2、岸边 4、河中央 8、沉船 16、巨石 32、冰洞 64、池塘 128。晴朗 1、雾 2、小雪 4、大雪 8、小雨 16、大雨 32、流星雨 64。季节春 1、夏 2、秋 4、冬 8。值 0 表示未知。地点与天气属于不同字段，相同数值不表示相同含义。&quot;,
+          &quot;score&quot;: 8.9332
+        },
+        {
+          &quot;id&quot;: &quot;fishing:3&quot;,
+          &quot;source&quot;: &quot;knowledge/fishing.md:L3&quot;,
+          &quot;title&quot;: &quot;候选鱼种&quot;,
+          &quot;text&quot;: &quot;候选计算以鱼竿白名单、鱼等级和地点为基础。精确鱼竿档案可通过鱼竿名称、UID 或 GUID 查找；未指定精确鱼竿时按河边、冰洞、池塘与轻重竿分类计算。工作台使用显式条件，保持条件不变，便于解释与复现。&quot;,
+          &quot;score&quot;: 7.7025
+        },
+        {
+          &quot;id&quot;: &quot;operation:19&quot;,
+          &quot;source&quot;: &quot;knowledge/operation.md:L19&quot;,
+          &quot;title&quot;: &quot;数据校验&quot;,
+          &quot;text&quot;: &quot;三组历史中文名已统一：大罐子鱼改为试剂瓶，抱抱蝾改为抱抱蜥，黑鲫鱼改为黑鲤鱼。鱼竿、等级与地点条件应使用同一版本快照。解释结果提供匹配和排除原因，适合复现同条件查询。&quot;,
+          &quot;score&quot;: 0.8953
+        }
+      ]
+    }
+  },
+  &quot;protocol_status&quot;: &quot;completed&quot;,
+  &quot;protocol_error&quot;: null
+}</pre></details><details><summary>3. query_candidates</summary><pre>{
+  &quot;tool&quot;: &quot;query_candidates&quot;,
+  &quot;arguments&quot;: {
+    &quot;context&quot;: {
+      &quot;rod_id&quot;: &quot;AE_006182_Rod&quot;,
+      &quot;mode&quot;: &quot;route&quot;,
+      &quot;level&quot;: 6,
+      &quot;location&quot;: 4,
+      &quot;season&quot;: 4,
+      &quot;time&quot;: 0,
+      &quot;weather&quot;: 64
+    }
+  },
+  &quot;output&quot;: {
+    &quot;ok&quot;: true,
+    &quot;data&quot;: {
+      &quot;version&quot;: &quot;plugin-2.8.16.58&quot;,
+      &quot;context&quot;: {
+        &quot;rod_id&quot;: &quot;AE_006182_Rod&quot;,
+        &quot;mode&quot;: &quot;route&quot;,
+        &quot;accessory&quot;: 2,
+        &quot;level&quot;: 6,
+        &quot;location&quot;: 4,
+        &quot;season&quot;: 4,
+        &quot;time&quot;: 0,
+        &quot;weather&quot;: 64
+      },
+      &quot;candidates&quot;: [
+        {
+          &quot;name&quot;: &quot;罗汉鱼&quot;,
+          &quot;eligible&quot;: true,
+          &quot;reasons&quot;: [],
+          &quot;environment_matches&quot;: {
+            &quot;season&quot;: false,
+            &quot;time&quot;: false,
+            &quot;weather&quot;: false
+          },
+          &quot;score&quot;: 95.0,
+          &quot;source&quot;: &quot;catalog:plugin-2.8.16.58:罗汉鱼&quot;
+        },
+        {
+          &quot;name&quot;: &quot;流星鱼&quot;,
+          &quot;eligible&quot;: true,
+          &quot;reasons&quot;: [],
+          &quot;environment_matches&quot;: {
+            &quot;season&quot;: true,
+            &quot;time&quot;: false,
+            &quot;weather&quot;: true
+          },
+          &quot;score&quot;: 3.5,
+          &quot;source&quot;: &quot;catalog:plugin-2.8.16.58:流星鱼&quot;
+        }
+      ],
+      &quot;count&quot;: 2,
+      &quot;semantics&quot;: &quot;条件筛选与环境排序分数，不是出鱼概率；使用显式条件，不自动切换竿型或放宽地点。&quot;
+    }
+  },
+  &quot;protocol_status&quot;: &quot;completed&quot;,
+  &quot;protocol_error&quot;: null
+}</pre></details><details><summary>4. explain_candidate</summary><pre>{
+  &quot;tool&quot;: &quot;explain_candidate&quot;,
+  &quot;arguments&quot;: {
+    &quot;context&quot;: {
+      &quot;rod_id&quot;: &quot;AE_006182_Rod&quot;,
+      &quot;mode&quot;: &quot;route&quot;,
+      &quot;level&quot;: 6,
+      &quot;location&quot;: 4,
+      &quot;season&quot;: 4,
+      &quot;time&quot;: 0,
+      &quot;weather&quot;: 64
+    },
+    &quot;fish_name&quot;: &quot;流星鱼&quot;
+  },
+  &quot;output&quot;: {
+    &quot;ok&quot;: true,
+    &quot;data&quot;: {
+      &quot;context&quot;: {
+        &quot;rod_id&quot;: &quot;AE_006182_Rod&quot;,
+        &quot;mode&quot;: &quot;route&quot;,
+        &quot;accessory&quot;: 2,
+        &quot;level&quot;: 6,
+        &quot;location&quot;: 4,
+        &quot;season&quot;: 4,
+        &quot;time&quot;: 0,
+        &quot;weather&quot;: 64
+      },
+      &quot;fish&quot;: {
+        &quot;name&quot;: &quot;流星鱼&quot;,
+        &quot;level&quot;: 6,
+        &quot;location&quot;: 12,
+        &quot;season&quot;: 4,
+        &quot;time&quot;: 33,
+        &quot;weather&quot;: 64,
+        &quot;factors&quot;: [
+          0.95,
+          1.8,
+          3.5,
+          6.0
+        ],
+        &quot;weights&quot;: [
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      &quot;name&quot;: &quot;流星鱼&quot;,
+      &quot;eligible&quot;: true,
+      &quot;reasons&quot;: [],
+      &quot;environment_matches&quot;: {
+        &quot;season&quot;: true,
+        &quot;time&quot;: false,
+        &quot;weather&quot;: true
+      },
+      &quot;score&quot;: 3.5,
+      &quot;source&quot;: &quot;catalog:plugin-2.8.16.58:流星鱼&quot;
+    }
+  },
+  &quot;protocol_status&quot;: &quot;completed&quot;,
+  &quot;protocol_error&quot;: null
+}</pre></details><details><summary>5. query_candidates</summary><pre>{
+  &quot;tool&quot;: &quot;query_candidates&quot;,
+  &quot;arguments&quot;: {
+    &quot;context&quot;: {
+      &quot;rod_id&quot;: &quot;AE_006182_Rod&quot;,
+      &quot;mode&quot;: &quot;route&quot;,
+      &quot;level&quot;: 6,
+      &quot;location&quot;: 4,
+      &quot;season&quot;: 4,
+      &quot;time&quot;: 0,
+      &quot;weather&quot;: 1
+    }
+  },
+  &quot;output&quot;: {
+    &quot;ok&quot;: true,
+    &quot;data&quot;: {
+      &quot;version&quot;: &quot;plugin-2.8.16.58&quot;,
+      &quot;context&quot;: {
+        &quot;rod_id&quot;: &quot;AE_006182_Rod&quot;,
+        &quot;mode&quot;: &quot;route&quot;,
+        &quot;accessory&quot;: 2,
+        &quot;level&quot;: 6,
+        &quot;location&quot;: 4,
+        &quot;season&quot;: 4,
+        &quot;time&quot;: 0,
+        &quot;weather&quot;: 1
+      },
+      &quot;candidates&quot;: [
+        {
+          &quot;name&quot;: &quot;罗汉鱼&quot;,
+          &quot;eligible&quot;: true,
+          &quot;reasons&quot;: [],
+          &quot;environment_matches&quot;: {
+            &quot;season&quot;: false,
+            &quot;time&quot;: false,
+            &quot;weather&quot;: true
+          },
+          &quot;score&quot;: 180.0,
+          &quot;source&quot;: &quot;catalog:plugin-2.8.16.58:罗汉鱼&quot;
+        },
+        {
+          &quot;name&quot;: &quot;流星鱼&quot;,
+          &quot;eligible&quot;: true,
+          &quot;reasons&quot;: [],
+          &quot;environment_matches&quot;: {
+            &quot;season&quot;: true,
+            &quot;time&quot;: false,
+            &quot;weather&quot;: false
+          },
+          &quot;score&quot;: 1.8,
+          &quot;source&quot;: &quot;catalog:plugin-2.8.16.58:流星鱼&quot;
+        }
+      ],
+      &quot;count&quot;: 2,
+      &quot;semantics&quot;: &quot;条件筛选与环境排序分数，不是出鱼概率；使用显式条件，不自动切换竿型或放宽地点。&quot;
+    }
+  },
+  &quot;protocol_status&quot;: &quot;completed&quot;,
+  &quot;protocol_error&quot;: null
+}</pre></details><details><summary>6. explain_candidate</summary><pre>{
+  &quot;tool&quot;: &quot;explain_candidate&quot;,
+  &quot;arguments&quot;: {
+    &quot;context&quot;: {
+      &quot;rod_id&quot;: &quot;AE_006182_Rod&quot;,
+      &quot;mode&quot;: &quot;route&quot;,
+      &quot;level&quot;: 6,
+      &quot;location&quot;: 4,
+      &quot;season&quot;: 4,
+      &quot;time&quot;: 0,
+      &quot;weather&quot;: 1
+    },
+    &quot;fish_name&quot;: &quot;流星鱼&quot;
+  },
+  &quot;output&quot;: {
+    &quot;ok&quot;: true,
+    &quot;data&quot;: {
+      &quot;context&quot;: {
+        &quot;rod_id&quot;: &quot;AE_006182_Rod&quot;,
+        &quot;mode&quot;: &quot;route&quot;,
+        &quot;accessory&quot;: 2,
+        &quot;level&quot;: 6,
+        &quot;location&quot;: 4,
+        &quot;season&quot;: 4,
+        &quot;time&quot;: 0,
+        &quot;weather&quot;: 1
+      },
+      &quot;fish&quot;: {
+        &quot;name&quot;: &quot;流星鱼&quot;,
+        &quot;level&quot;: 6,
+        &quot;location&quot;: 12,
+        &quot;season&quot;: 4,
+        &quot;time&quot;: 33,
+        &quot;weather&quot;: 64,
+        &quot;factors&quot;: [
+          0.95,
+          1.8,
+          3.5,
+          6.0
+        ],
+        &quot;weights&quot;: [
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      &quot;name&quot;: &quot;流星鱼&quot;,
+      &quot;eligible&quot;: true,
+      &quot;reasons&quot;: [],
+      &quot;environment_matches&quot;: {
+        &quot;season&quot;: true,
+        &quot;time&quot;: false,
+        &quot;weather&quot;: false
+      },
+      &quot;score&quot;: 1.8,
+      &quot;source&quot;: &quot;catalog:plugin-2.8.16.58:流星鱼&quot;
+    }
+  },
+  &quot;protocol_status&quot;: &quot;completed&quot;,
+  &quot;protocol_error&quot;: null
+}</pre></details></section>
+<p class="meta">此页面静态回放已完成的模型调用，查询条件由演示输入提供；记录范围为模型、MCP 和版本数据快照。</p></main></html>

@@ -2,7 +2,7 @@ name: Workbench checks
 on:
   push:
     branches: [main]
-    paths: ['assistant/**', 'src/PAFishPeekPlugin/**', 'scripts/export-catalog.py', '.github/workflows/workbench.yml']
+    paths: ['assistant/**', 'src/PAFishPeekPlugin/**', 'scripts/export-catalog.py', 'scripts/run-mcp-demo.py', 'docs/examples/*.json', '.github/workflows/workbench.yml']
   pull_request:
   workflow_dispatch:
 permissions:
