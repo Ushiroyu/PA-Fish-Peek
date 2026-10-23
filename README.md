@@ -82,6 +82,8 @@ pwsh -NoProfile -File .\scripts\check-package.ps1 -Path .\artifacts\PA-Fish-Peek
 
 生成的安装 ZIP 没有外层文件夹，可直接解压到游戏根目录。打包只收集指定运行时和插件，排除源码、日志与扫描缓存。
 
+默认打包使用仓库已有的插件 DLL。需要本次构建结果时先执行上面的 `-UpdateBundledPlugin`；再次打包若输出已存在，请用 `-OutputPath` 指定新文件名。
+
 仓库提供 GitHub Actions 构建与打包工作流；具体云端执行结果以 **Actions** 页面为准。构建和包检查不能替代进游戏验收。
 
 ## 故障排查
