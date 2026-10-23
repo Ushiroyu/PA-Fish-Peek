@@ -1,4 +1,4 @@
-# 四季小屋 · 基于 MCP 与 RAG 的领域智能分析助手
+# 四季小屋（PA Fish Peek）｜基于 MCP 与 RAG 的领域智能分析助手
 
 围绕钓鱼领域的候选筛选、条件解释与知识问答，将结构化规则、中文检索、只读 MCP 工具和 Agent 多步调用连接起来。用户可以通过自然语言提问，核对候选条件、比较环境变化，并追溯回答依据。
 
@@ -45,6 +45,8 @@ flowchart TD
 
 ## 验证与检索迭代
 
+以下自动化检查与检索评测记录对应代码提交 [`53169ec`](https://github.com/Ushiroyu/PA-Fish-Peek/commit/53169eca4b87033afe61cc734bfe45e99adedaf6)。
+
 | 检查项 | 记录 |
 | --- | --- |
 | Python 自动测试 | 71 项通过，Windows / Ubuntu CI 均通过 |
@@ -64,7 +66,7 @@ flowchart TD
 
 [工作台与 Codex 接入](docs/workbench.md) · [技术设计](docs/technical-design.md) · [验证与验收](docs/validation.md) · [后续规划](docs/roadmap.md)
 
-## 功能
+## 游戏插件功能
 
 | 能力 | 当前实现 |
 | --- | --- |
@@ -74,10 +76,6 @@ flowchart TD
 | 环境排序 | 季节、时间、天气参与候选评分；池塘候选还检查季节 |
 | 秋季适配 | 包含秋季鱼竿、鱼种和流星雨天气相关调整 |
 | 故障处理 | callback / setter 原生 detour 禁用，保留弱句柄、限长队列和诊断日志 |
-| RAG 检索问答 | 中文 BM25 检索、SQLite 段落索引、来源引用与模型回答 |
-| MCP 接入 | 六个只读工具，可由 Codex 桌面端现有登录与已选模型调用 |
-| Agent 流程 | OpenAI 兼容工具调用循环，包含执行预算、错误恢复与 Trace |
-| 分析工作台 | 浏览器查询候选、查看依据、读取匿名遭遇与调用记录 |
 
 “可能是”表示规则候选。排序分数没有经过概率校准，不等于服务器真实出鱼概率，也不保证唯一识别鱼种。
 
