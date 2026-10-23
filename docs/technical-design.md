@@ -31,7 +31,7 @@ flowchart TD
 | `RodFishCategoryData.cs` | 模式与轻重竿分类白名单 |
 | `BuiltInExactRodProfilesData.cs` | 精确鱼竿档案，通过 UID、GUID 或名称查找 |
 
-这些文件属于同一个 `partial` 插件类，还未形成可独立测试的领域类库。
+这些文件通过 `partial` 共同组成插件类。
 
 ## 候选推断
 
@@ -55,4 +55,4 @@ flowchart TD
 
 F10 关闭输出后，已启用的轮询继续运行。昵称未就绪时所有玩家模式使用临时标签；地点存在缓存或模式默认值回退，展示值不一定都来自当前帧直接观测。
 
-已有日志与局部计数器；尚无结构化 Trace、统一指标、离线回放或自动效果评测。Interop 更新和 Unity 库下载行为受配套 BepInEx 配置控制。
+日志与局部计数器用于跟踪控制器发现、遭遇处理和候选筛选。Interop 更新和 Unity 库下载行为受配套 BepInEx 配置控制。
