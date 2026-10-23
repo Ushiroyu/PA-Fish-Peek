@@ -1,6 +1,6 @@
 # PA Fish Peek · 钓鱼信息插件与分析工作台
 
-面向《Party Animals》的 BepInEx IL2CPP 插件。读取钓鱼遭遇信息，显示玩家、钓点和鱼等级，并结合鱼竿档案与环境信息给出可能鱼种。
+面向「雾屿」钓鱼场景的 BepInEx IL2CPP 插件。读取钓鱼遭遇信息，显示玩家、钓点和鱼等级，并结合鱼竿档案与环境信息给出可能鱼种。
 
 插件版本 `2.8.16.58`，工作台版本 `0.1.0`。提供配套运行时、直接安装目录、中文检索、MCP 工具与 Agent 查询流程。
 
@@ -43,12 +43,12 @@ pwsh -NoProfile -File .\scripts\install-mcp.ps1
 
 1. 退出游戏，备份已有 `BepInEx`、`dotnet` 和根目录加载器文件。
 2. 在仓库页面选择 **Code → Download ZIP**，打开 ZIP 最外层的 `PA-Fish-Peek-main` 文件夹。
-3. 将里面的内容解压或复制到包含 `PartyAnimals.exe` 的游戏根目录，不要把整个外层文件夹放进去。
+3. 将里面的内容解压或复制到游戏主程序所在的根目录，不要把整个外层文件夹放进去。
 4. 正常启动游戏，进入钓鱼场景，按 `F10` 开启预测输出。
 
 ```text
-Party Animals/
-├─ PartyAnimals.exe                  # 原有游戏文件
+游戏根目录/
+├─ 游戏原有文件
 ├─ .doorstop_version
 ├─ doorstop_config.ini
 ├─ winhttp.dll
@@ -79,7 +79,7 @@ F10 关闭输出后，已经启用的轮询仍会继续运行；完全停用需�
 pwsh -NoProfile -File .\scripts\build.ps1
 
 # 可选：引用本地游戏目录的依赖
-pwsh -NoProfile -File .\scripts\build.ps1 -GameRoot 'G:\SteamLibrary\steamapps\common\Party Animals'
+pwsh -NoProfile -File .\scripts\build.ps1 -GameRoot 'C:\Games\GameRoot'
 
 # 明确更新仓库安装目录内的插件，然后打包并检查
 pwsh -NoProfile -File .\scripts\build.ps1 -UpdateBundledPlugin
