@@ -13,7 +13,7 @@ flowchart TD
     read --> queue["遭遇去重，队列上限 128"]
     queue --> scope{"输出开启且符合 F11 范围？"}
     scope -- 是 --> context["玩家 / 钓点 / 鱼竿 / 环境"]
-    resources["基础与秋季导出 JSON，缺失时用内置表"] --> context
+    data["鱼种、鱼竿与环境数据"] --> context
     context --> rules["候选筛选与排序"]
     rules --> output["TextMeshPro 提示与日志"]
 ```
@@ -25,11 +25,11 @@ flowchart TD
 | 文件 | 职责 |
 | --- | --- |
 | `FishPeekPlugin.cs` | 生命周期、主线程驱动、控制器发现、原生读取、玩家映射、队列、热键与 UI |
-| `FishPeekPlugin.ContextPrediction.cs` | 资源解析、上下文、鱼竿识别、地点缓存与候选计算 |
+| `FishPeekPlugin.ContextPrediction.cs` | 数据处理、上下文、鱼竿识别、地点缓存与候选计算 |
 | `FishLevelData.cs` | 内置鱼等级表 |
 | `FishContextData.cs` | 内置鱼种环境和地点权重 |
 | `RodFishCategoryData.cs` | 模式与轻重竿分类白名单 |
-| `BuiltInExactRodProfilesData.cs` | 精确鱼竿档案，通过 UID、GUID 或资源名查找 |
+| `BuiltInExactRodProfilesData.cs` | 精确鱼竿档案，通过 UID、GUID 或名称查找 |
 
 这些文件属于同一个 `partial` 插件类，还未形成可独立测试的领域类库。
 
@@ -45,13 +45,9 @@ flowchart TD
 
 精确鱼竿候选为空时，可能重试不指定地点；分类候选为空时可能尝试另一种轻重竿分类。这些放宽分支提升提示覆盖率，也带来候选解释的需要。后续应记录原始上下文、回退原因与候选排除原因。
 
-## 数据优先级
+## 数据处理
 
-- 资源入口要求基础 `PartyAnimalsAsset/MonoBehaviour` 和 `path_id.txt` 存在；秋季目录在该入口下补充读取。
-- 同名秋季鱼竿覆盖关系见[历史审计](fishpeek-data-audit-20261017.md)。
-- 运行时分类白名单会合并内置白名单，并非整体替换。
-- `TryGetFishLevelByName` 先查内置等级，查不到才查资源等级；运行时表并非始终优先。
-- 读取失败存在内置回退，因此“没有报错”不足以证明用了最新资源。
+鱼种名称在等级、环境、分类和精确鱼竿档案之间保持一致。秋季适配与三组历史名称修正见[数据与天气审计](fishpeek-data-audit-20261017.md)。候选生成包含默认值与回退分支，调试时需要结合实际上下文核对。
 
 ## 运行边界
 

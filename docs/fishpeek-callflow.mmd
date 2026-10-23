@@ -1,6 +1,6 @@
 flowchart TD
     load["加载插件，挂接 EventSystem.Update"] --> toggle["F10 首次开启检测与输出"]
-    toggle --> tables["预热资源表与天气；缺失时回退内置表"]
+    toggle --> tables["初始化鱼竿、鱼种与天气信息"]
     toggle --> discover["低频发现控制器，缓存弱句柄"]
     discover --> poll["主线程逐帧读取 fishJustEncounteredParam"]
     poll --> valid{"有可解析的新遭遇？"}
