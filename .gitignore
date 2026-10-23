@@ -32,6 +32,7 @@ artifacts/
 __pycache__/
 .pytest_cache/
 *.egg-info/
+assistant/build/
 .state/
 .env
 .env.*

@@ -25,7 +25,11 @@ jobs:
       - run: python scripts/export-catalog.py --check
       - run: python -m pytest assistant/tests -q
       - run: python -m fishpeek.evaluate --output artifacts/evaluation.json
+      - run: python -m fishpeek.evaluate_retrieval --check-reference --output artifacts/retrieval-evaluation.json
       - uses: actions/upload-artifact@v4
         with:
           name: workbench-evaluation-${{ matrix.os }}
-          path: artifacts/evaluation.json
+          path: |
+            artifacts/evaluation.json
+            artifacts/retrieval-evaluation.json
+            artifacts/retrieval-evaluation.md

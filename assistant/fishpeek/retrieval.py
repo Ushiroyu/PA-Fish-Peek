@@ -5,12 +5,16 @@ import sqlite3
 import threading
 from collections import Counter
 from contextlib import closing
+from pathlib import Path
 from .settings import PACKAGE
 
 
-def tokens(text):
+def tokens(text, normalize_identifiers=True):
     text = text.lower()
     words = re.findall(r"[a-z0-9_]+", text)
+    if normalize_identifiers:
+        # 错误码和偏移在问题中常省略 0x；文档与查询使用相同的规范形式。
+        words.extend("hex:" + match for match in re.findall(r"(?<![a-z0-9_])(?:0x)?([a-f0-9]{6,16})(?![a-z0-9_])", text))
     for sentence in re.findall(r"[\u3400-\u9fff]+", text):
         words.extend(sentence)
         words.extend(sentence[i:i + 2] for i in range(len(sentence) - 1))
@@ -44,13 +48,20 @@ class Knowledge:
                         body.append(line)
                 save()
 
-    def search(self, query, limit=4):
+    def sections(self):
+        """评测用的逻辑段落标识不依赖行号；实际引用仍保留路径与行号。"""
         with closing(sqlite3.connect(self.path)) as db:
             rows = db.execute("SELECT id,source,title,text FROM chunks ORDER BY id").fetchall()
-        docs = [Counter(tokens(row[2] + " " + row[3])) for row in rows]
+        return [dict(id=row[0], source=row[1], title=row[2], text=row[3],
+                     section_id=f"{Path(row[1].split(':L')[0]).stem}#{row[2]}") for row in rows]
+
+    def search(self, query, limit=4, *, normalize_identifiers=True):
+        with closing(sqlite3.connect(self.path)) as db:
+            rows = db.execute("SELECT id,source,title,text FROM chunks ORDER BY id").fetchall()
+        docs = [Counter(tokens(row[2] + " " + row[3], normalize_identifiers)) for row in rows]
         sizes = [sum(doc.values()) for doc in docs]
         avg = sum(sizes) / max(len(sizes), 1)
-        terms = set(tokens(query))
+        terms = set(tokens(query, normalize_identifiers))
         results = []
         for row, doc, size in zip(rows, docs, sizes):
             score = 0.0

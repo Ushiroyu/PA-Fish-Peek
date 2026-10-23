@@ -76,10 +76,13 @@ python -m venv .venv
 python scripts\export-catalog.py --check
 .\.venv\Scripts\python.exe -m pytest assistant\tests -q
 .\.venv\Scripts\python.exe -m fishpeek.evaluate --output artifacts\evaluation.json
+.\.venv\Scripts\python.exe -m fishpeek.evaluate_retrieval --check-reference --output artifacts\retrieval-evaluation.json
 dotnet run --project tests\EventJournal\EventJournal.csproj -c Release
 ```
 
 `scripts/export-catalog.py` 从插件内置表同步快照；CI 使用 `--check` 检查数据一致性。完整依赖版本锁定在 `assistant/requirements.lock`。
+
+中文检索另有 60 条带相关性依据的场景样例，按文件与标题匹配标签，输出 Recall@K、MRR@K 和逐条排名；资料来源、指标口径与对照结果见[检索评测](retrieval-evaluation.md)。它与原有 26 项领域和检索回归分别记录。
 
 FastAPI 提供 `/api/health`、`/api/tools`、`/api/chat` 和 `/api/traces/{id}`；接口文档位于 `/docs`。Trace 保存工具名称、状态和耗时，最多保留 1000 次记录，便于排查错误与循环。服务默认仅监听本机地址，验证请求来源与 Host。
 

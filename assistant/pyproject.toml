@@ -19,7 +19,7 @@ fishpeek = "fishpeek.__main__:main"
 include = ["fishpeek*"]
 
 [tool.setuptools.package-data]
-fishpeek = ["data/*.json", "knowledge/*.md", "static/*.html"]
+fishpeek = ["data/*.json", "knowledge/*.md", "knowledge/*.json", "static/*.html"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

@@ -1,0 +1,758 @@
+{
+  "dataset_version": "retrieval-scenarios-1",
+  "corpus_revision": "knowledge-2026-10-23.2",
+  "strategy": "hex-normalized",
+  "scenario_counts": {
+    "abbreviation": 10,
+    "direct": 10,
+    "missing_context": 10,
+    "multi_evidence": 10,
+    "no_answer": 10,
+    "paraphrase": 10
+  },
+  "summary": {
+    "count": 60,
+    "answerable": 50,
+    "no_answer": 10,
+    "at_k": {
+      "1": {
+        "precision": 0.76,
+        "recall": 0.66,
+        "hit_rate": 0.76,
+        "mrr": 0.76
+      },
+      "3": {
+        "precision": 0.38,
+        "recall": 0.91,
+        "hit_rate": 0.96,
+        "mrr": 0.846667
+      },
+      "4": {
+        "precision": 0.305,
+        "recall": 0.96,
+        "hit_rate": 0.98,
+        "mrr": 0.851667
+      },
+      "6": {
+        "precision": 0.206667,
+        "recall": 0.98,
+        "hit_rate": 1.0,
+        "mrr": 0.855667
+      }
+    },
+    "no_answer_empty_result_rate": 0.0
+  },
+  "corpus": {
+    "files": {
+      "fishing.md": [
+        "assistant/fishpeek/rules.py",
+        "assistant/fishpeek/data/catalog.json"
+      ],
+      "operation.md": [
+        "docs/technical-design.md",
+        "docs/validation.md",
+        "src/PAFishPeekPlugin/FishPeekPlugin.cs"
+      ],
+      "tools.md": [
+        "assistant/fishpeek/tools.py",
+        "assistant/fishpeek/mcp_server.py",
+        "docs/workbench.md"
+      ],
+      "reliability.md": [
+        "assistant/fishpeek/agent.py",
+        "assistant/fishpeek/provider.py",
+        "assistant/fishpeek/settings.py"
+      ],
+      "versions.md": [
+        "scripts/export-catalog.py",
+        "docs/technical-design.md",
+        "src/PAFishPeekPlugin/FishPeekPlugin.Events.cs"
+      ]
+    },
+    "sections": [
+      {
+        "id": "fishing:11",
+        "source": "knowledge/fishing.md:L11",
+        "title": "环境评分与概率",
+        "text": "季节、时间和天气匹配参与环境分数；地点权重和鱼竿权重参与排序。天气主要是评分信号，晴朗时不应仅因天气不匹配就把流星鱼排除。池塘另有季节匹配要求。排序分数不是服务器出鱼概率，不表示唯一识别鱼种。",
+        "section_id": "fishing#环境评分与概率"
+      },
+      {
+        "id": "fishing:15",
+        "source": "knowledge/fishing.md:L15",
+        "title": "地点与天气标记",
+        "text": "河湾 1、码头 2、岸边 4、河中央 8、沉船 16、巨石 32、冰洞 64、池塘 128。晴朗 1、雾 2、小雪 4、大雪 8、小雨 16、大雨 32、流星雨 64。季节春 1、夏 2、秋 4、冬 8。值 0 表示未知。地点与天气属于不同字段，相同数值不表示相同含义。",
+        "section_id": "fishing#地点与天气标记"
+      },
+      {
+        "id": "fishing:19",
+        "source": "knowledge/fishing.md:L19",
+        "title": "未知条件",
+        "text": "未知天气不增加天气匹配分；未知具体地点时按模式地点集合筛选。池塘季节为 0 时，解释结果提示补充季节。未知鱼竿或鱼名会返回参数错误，工具不会擅自选择另一根鱼竿。",
+        "section_id": "fishing#未知条件"
+      },
+      {
+        "id": "fishing:3",
+        "source": "knowledge/fishing.md:L3",
+        "title": "候选鱼种",
+        "text": "候选计算以鱼竿白名单、鱼等级和地点为基础。精确鱼竿档案可通过鱼竿名称、UID 或 GUID 查找；未指定精确鱼竿时按河边、冰洞、池塘与轻重竿分类计算。工作台使用显式条件，保持条件不变，便于解释与复现。",
+        "section_id": "fishing#候选鱼种"
+      },
+      {
+        "id": "fishing:7",
+        "source": "knowledge/fishing.md:L7",
+        "title": "流星鱼与奇虾",
+        "text": "流星鱼对应等级 6、地点掩码 12（岸边 4 与河中央 8）、秋季位 4、天气位 64（流星雨）。精确鱼竿 AE_006182_Rod 的白名单包含流星鱼。奇虾对应等级 4、池塘地点 128、秋季位 4、流星雨天气位 64，AE_006123_Rod 的白名单包含奇虾。具体条件应通过候选解释工具核对。",
+        "section_id": "fishing#流星鱼与奇虾"
+      },
+      {
+        "id": "operation:11",
+        "source": "knowledge/operation.md:L11",
+        "title": "遭遇采集",
+        "text": "插件在主线程处理已解析的遭遇，事件写入在后台使用有界队列。事件包含时间、等级、体型、场景和匿名临时玩家 ID；工作台从预配置事件位置只读载入。样例事件会明确标记为示例，真实事件不会由演示数据自动补充。",
+        "section_id": "operation#遭遇采集"
+      },
+      {
+        "id": "operation:15",
+        "source": "knowledge/operation.md:L15",
+        "title": "稳定性诊断",
+        "text": "当前运行路径是低频发现控制器、主线程读取 fishJustEncounteredParam。callback 与 setter 原生 detour 保持关闭。历史访问冲突位置涉及 GameAssembly.dll + 0xc1f7a9 / 0xc0000005。出现异常时退出游戏，恢复备份并核对匹配版本。",
+        "section_id": "operation#稳定性诊断"
+      },
+      {
+        "id": "operation:19",
+        "source": "knowledge/operation.md:L19",
+        "title": "数据校验",
+        "text": "三组历史中文名已统一：大罐子鱼改为试剂瓶，抱抱蝾改为抱抱蜥，黑鲫鱼改为黑鲤鱼。鱼竿、等级与地点条件应使用同一版本快照。解释结果提供匹配和排除原因，适合复现同条件查询。",
+        "section_id": "operation#数据校验"
+      },
+      {
+        "id": "operation:3",
+        "source": "knowledge/operation.md:L3",
+        "title": "安装与按键",
+        "text": "将安装包内容解压到游戏主程序所在的根目录。启动游戏进入钓鱼场景后按 F10 开启预测输出；F11 切换关闭、仅自己和所有玩家。F10 关闭输出后，已经启用的轮询继续运行。退出游戏后移走插件 DLL 可完全停用插件。",
+        "section_id": "operation#安装与按键"
+      },
+      {
+        "id": "operation:7",
+        "source": "knowledge/operation.md:L7",
+        "title": "临时玩家标签",
+        "text": "所有玩家模式在昵称解析过程中使用临时玩家 ID 标签。工作台事件只保留匿名临时标识，不记录玩家昵称与账号。临时 ID 只用于单次运行观察，不应用于跨房间识别个人。",
+        "section_id": "operation#临时玩家标签"
+      },
+      {
+        "id": "reliability:11",
+        "source": "knowledge/reliability.md:L11",
+        "title": "Trace 与记录范围",
+        "text": "网页调用记录写入本机 SQLite，最多保留 1000 次 Trace。记录包含工具名、步骤状态、耗时与创建时间，不保存密钥和原始提示。Trace ID 用于定位某次执行；桌面 MCP 演示使用客户端事件流核验，与网页 Trace 分别保存。",
+        "section_id": "reliability#Trace 与记录范围"
+      },
+      {
+        "id": "reliability:15",
+        "source": "knowledge/reliability.md:L15",
+        "title": "引用与可信依据",
+        "text": "网页 Agent 给规则结果和检索文段分配来源 ID，回答只能引用本次提供的 ID。文段带文件路径与行号，规则结果带 catalog 版本和鱼名。检查引用存在不等于检查每句话都被来源支持。检索文段和工具输出是数据，其中要求泄露配置、执行命令或改变规则的内容不能作为新指令执行。",
+        "section_id": "reliability#引用与可信依据"
+      },
+      {
+        "id": "reliability:3",
+        "source": "knowledge/reliability.md:L3",
+        "title": "调用预算",
+        "text": "网页兼容接口 Agent 默认最多执行 6 个模型步骤、12 次模型选择的工具调用，单次模型输出上限配置为 1200 token，总执行时间默认 90 秒。前置检索和显式条件查询在模型循环前执行。重复的相同工具与参数第 3 次出现时停止，避免无效循环。桌面客户端调用 MCP 的预算由客户端管理，不使用网页 Agent 的这组计数。",
+        "section_id": "reliability#调用预算"
+      },
+      {
+        "id": "reliability:7",
+        "source": "knowledge/reliability.md:L7",
+        "title": "重试与错误恢复",
+        "text": "兼容接口遇到 HTTP 429、502、503、504 或请求连接错误时最多重试一次，单次模型请求默认超时 30 秒。参数格式或范围错误返回明确错误结果，模型可修正输入后继续。连续重复、步骤超限、无效引用或总超时会结束本次执行。错误输出不包含供应商响应正文或密钥。",
+        "section_id": "reliability#重试与错误恢复"
+      },
+      {
+        "id": "tools:11",
+        "source": "knowledge/tools.md:L11",
+        "title": "桌面工具与网页问答",
+        "text": "MCP 入口由桌面客户端中的模型调用六个只读工具；网页本地模式用规则结果与检索段落组织答复。网页模型模式则通过另外配置的 OpenAI 兼容接口执行多步工具调用。MCP 演示与网页供应商接口测试分别记录，不能相互替代。",
+        "section_id": "tools#桌面工具与网页问答"
+      },
+      {
+        "id": "tools:15",
+        "source": "knowledge/tools.md:L15",
+        "title": "当前状态与条件澄清",
+        "text": "查询输入中的季节、天气和地点是用户给定条件，不自动代表当前现场。匿名事件包含等级、体型、时间和场景，不包含当前鱼竿、完整天气或真实鱼种结论。用户只问“我现在会钓到什么”而没有条件时，需要询问鱼竿、等级、钓点和环境，不能凭检索段落推断实时状态。",
+        "section_id": "tools#当前状态与条件澄清"
+      },
+      {
+        "id": "tools:3",
+        "source": "knowledge/tools.md:L3",
+        "title": "查询与解释的分工",
+        "text": "query_candidates 根据显式鱼竿、模式、等级、地点、季节、时间和天气计算候选。explain_candidate 针对一个鱼名返回是否保留、排除原因、环境匹配和排序分数。需要精确名单、数值或排除原因时，应调用规则工具；知识检索提供计算方法和使用说明，不替代规则计算。",
+        "section_id": "tools#查询与解释的分工"
+      },
+      {
+        "id": "tools:7",
+        "source": "knowledge/tools.md:L7",
+        "title": "检索与事件参数范围",
+        "text": "search_knowledge 的 limit 为 1–6，默认 4；read_runtime_events 的 limit 为 1–50，默认 10。超出范围会被参数校验拒绝，不能通过增加条数读取任意文件。工具只读取配置中的匿名事件位置。具体鱼竿名称、UID 或 GUID 可通过 list_rods 查找。",
+        "section_id": "tools#检索与事件参数范围"
+      },
+      {
+        "id": "versions:11",
+        "source": "knowledge/versions.md:L11",
+        "title": "事件写入与轮转",
+        "text": "插件匿名事件写入使用容量 128 的有界队列，队列满时丢弃较旧的待写事件，后台落盘，单文件达到 4 MiB 时轮转。WriteAnonymousEvents 配置控制记录。I/O 故障与提示路径隔离；没有实际事件时返回空列表，不能用示例事件填充。文件有界和后台写入不代表实机长期稳定性已经完成验证。",
+        "section_id": "versions#事件写入与轮转"
+      },
+      {
+        "id": "versions:3",
+        "source": "knowledge/versions.md:L3",
+        "title": "数据快照一致性",
+        "text": "工作台使用从插件内置表导出的版本快照，包含 76 种鱼和 17 个精确鱼竿档案。export-catalog.py --check 对照源码与随包快照，发现遗漏更新时报告差异。调整鱼种名称或环境表后，需要同步相关表并执行领域回归；鱼种规则查询不依赖模型记忆。",
+        "section_id": "versions#数据快照一致性"
+      },
+      {
+        "id": "versions:7",
+        "source": "knowledge/versions.md:L7",
+        "title": "显式查询与插件回退",
+        "text": "工作台保持用户输入条件不变，不自动改用另一种竿型，也不放宽地点。插件画面的兼容分支可能在精确鱼竿无候选时重试不指定地点，或在分类候选为空时尝试另一类轻重竿。两者输入和回退过程不同，不能只凭最终候选数量判断规则冲突。",
+        "section_id": "versions#显式查询与插件回退"
+      }
+    ]
+  },
+  "case_inventory": [
+    {
+      "id": "D01",
+      "category": "direct",
+      "query": "候选鱼种根据哪些条件筛选？",
+      "relevant": [
+        "fishing#候选鱼种"
+      ],
+      "reason": "说明白名单、等级、地点和显式查询。"
+    },
+    {
+      "id": "D02",
+      "category": "direct",
+      "query": "排序分数是不是服务器出鱼概率？",
+      "relevant": [
+        "fishing#环境评分与概率"
+      ],
+      "reason": "明确分数不是概率。"
+    },
+    {
+      "id": "D03",
+      "category": "direct",
+      "query": "流星鱼和奇虾的等级地点是什么？",
+      "relevant": [
+        "fishing#流星鱼与奇虾"
+      ],
+      "reason": "同时列出两种鱼的条件。"
+    },
+    {
+      "id": "D04",
+      "category": "direct",
+      "query": "地点与天气标记64分别表示什么？",
+      "relevant": [
+        "fishing#地点与天气标记"
+      ],
+      "reason": "区分地点冰洞与天气流星雨。"
+    },
+    {
+      "id": "D05",
+      "category": "direct",
+      "query": "F10和F11有什么作用？",
+      "relevant": [
+        "operation#安装与按键"
+      ],
+      "reason": "说明输出开关和范围切换。"
+    },
+    {
+      "id": "D06",
+      "category": "direct",
+      "query": "临时玩家标签会记录账号吗？",
+      "relevant": [
+        "operation#临时玩家标签"
+      ],
+      "reason": "说明匿名标识及记录范围。"
+    },
+    {
+      "id": "D07",
+      "category": "direct",
+      "query": "检索和事件读取的limit分别是多少？",
+      "relevant": [
+        "tools#检索与事件参数范围"
+      ],
+      "reason": "给出两种limit范围及默认值。"
+    },
+    {
+      "id": "D08",
+      "category": "direct",
+      "query": "Agent的调用预算有多少步和工具次数？",
+      "relevant": [
+        "reliability#调用预算"
+      ],
+      "reason": "给出默认步骤及工具预算。"
+    },
+    {
+      "id": "D09",
+      "category": "direct",
+      "query": "Trace最多保留多少条记录？",
+      "relevant": [
+        "reliability#Trace 与记录范围"
+      ],
+      "reason": "明确1000条上限。"
+    },
+    {
+      "id": "D10",
+      "category": "direct",
+      "query": "匿名事件文件什么时候轮转？",
+      "relevant": [
+        "versions#事件写入与轮转"
+      ],
+      "reason": "给出4MiB轮转条件。"
+    },
+    {
+      "id": "P01",
+      "category": "paraphrase",
+      "query": "为什么天晴了流星鱼还在名单里？",
+      "relevant": [
+        "fishing#环境评分与概率"
+      ],
+      "reason": "天气主要参与评分，不是通用硬过滤。"
+    },
+    {
+      "id": "P02",
+      "category": "paraphrase",
+      "query": "按了关闭键是不是就完全停止读取了？",
+      "relevant": [
+        "operation#安装与按键"
+      ],
+      "reason": "F10关闭输出后轮询继续。"
+    },
+    {
+      "id": "P03",
+      "category": "paraphrase",
+      "query": "换个房间还能靠那个数字认出同一个人吗？",
+      "relevant": [
+        "operation#临时玩家标签"
+      ],
+      "reason": "临时ID不应用于跨房间识别。"
+    },
+    {
+      "id": "P04",
+      "category": "paraphrase",
+      "query": "问了好几遍完全一样的工具会不会一直转圈？",
+      "relevant": [
+        "reliability#调用预算"
+      ],
+      "reason": "相同工具参数重复第三次时停止。"
+    },
+    {
+      "id": "P05",
+      "category": "paraphrase",
+      "query": "服务偶尔限流了会自动再试吗？",
+      "relevant": [
+        "reliability#重试与错误恢复"
+      ],
+      "reason": "429等临时错误重试一次。"
+    },
+    {
+      "id": "P06",
+      "category": "paraphrase",
+      "query": "说明中写了来源就能证明每句话都对吗？",
+      "relevant": [
+        "reliability#引用与可信依据"
+      ],
+      "reason": "区分来源存在与语义支持。"
+    },
+    {
+      "id": "P07",
+      "category": "paraphrase",
+      "query": "没有遇到鱼的时候页面会不会自己编几条？",
+      "relevant": [
+        "operation#遭遇采集",
+        "versions#事件写入与轮转"
+      ],
+      "reason": "两段共同说明真实事件不由示例补充。"
+    },
+    {
+      "id": "P08",
+      "category": "paraphrase",
+      "query": "为什么插件给的名单比工作台宽一点？",
+      "relevant": [
+        "versions#显式查询与插件回退"
+      ],
+      "reason": "说明兼容回退与严格查询的差异。"
+    },
+    {
+      "id": "P09",
+      "category": "paraphrase",
+      "query": "改了鱼表怎样发现工作台还在用旧表？",
+      "relevant": [
+        "versions#数据快照一致性"
+      ],
+      "reason": "快照检查对照源码发现不同步。"
+    },
+    {
+      "id": "P10",
+      "category": "paraphrase",
+      "query": "写日志的磁盘出故障会不会卡住提示？",
+      "relevant": [
+        "versions#事件写入与轮转"
+      ],
+      "reason": "后台有界写入及I/O故障隔离。"
+    },
+    {
+      "id": "A01",
+      "category": "abbreviation",
+      "query": "trace保存啥，能看key吗？",
+      "relevant": [
+        "reliability#Trace 与记录范围"
+      ],
+      "reason": "Trace字段与密钥排除。"
+    },
+    {
+      "id": "A02",
+      "category": "abbreviation",
+      "query": "429、503重试几回？",
+      "relevant": [
+        "reliability#重试与错误恢复"
+      ],
+      "reason": "对应HTTP临时错误及次数。"
+    },
+    {
+      "id": "A03",
+      "category": "abbreviation",
+      "query": "MCP和Web模型问答是一条链路吗？",
+      "relevant": [
+        "tools#桌面工具与网页问答"
+      ],
+      "reason": "明确两个模型入口分别验证。"
+    },
+    {
+      "id": "A04",
+      "category": "abbreviation",
+      "query": "query_candidates和explain_candidate怎么选？",
+      "relevant": [
+        "tools#查询与解释的分工"
+      ],
+      "reason": "说明两个规则工具的职责。"
+    },
+    {
+      "id": "A05",
+      "category": "abbreviation",
+      "query": "search_knowledge limit=8行吗？",
+      "relevant": [
+        "tools#检索与事件参数范围"
+      ],
+      "reason": "检索limit上限为6。"
+    },
+    {
+      "id": "A06",
+      "category": "abbreviation",
+      "query": "export-catalog.py --check查什么？",
+      "relevant": [
+        "versions#数据快照一致性"
+      ],
+      "reason": "说明快照与源码一致性。"
+    },
+    {
+      "id": "A07",
+      "category": "abbreviation",
+      "query": "UID/GUID能定位竿档案吗？",
+      "relevant": [
+        "fishing#候选鱼种",
+        "tools#检索与事件参数范围"
+      ],
+      "reason": "分别说明标识匹配和list_rods查询。"
+    },
+    {
+      "id": "A08",
+      "category": "abbreviation",
+      "query": "F10 off之后polling还在吗？",
+      "relevant": [
+        "operation#安装与按键"
+      ],
+      "reason": "明确输出关闭后的轮询状态。"
+    },
+    {
+      "id": "A09",
+      "category": "abbreviation",
+      "query": "c0000005在哪个模块出过？",
+      "relevant": [
+        "operation#稳定性诊断"
+      ],
+      "reason": "记录模块及历史偏移。"
+    },
+    {
+      "id": "A10",
+      "category": "abbreviation",
+      "query": "WriteAnonymousEvents和4MiB轮转怎么用？",
+      "relevant": [
+        "versions#事件写入与轮转"
+      ],
+      "reason": "对应开关和轮转。"
+    },
+    {
+      "id": "M01",
+      "category": "multi_evidence",
+      "query": "名单怎么筛选，分数又能不能看作概率？",
+      "relevant": [
+        "fishing#候选鱼种",
+        "fishing#环境评分与概率"
+      ],
+      "reason": "需要筛选与分数含义两段。"
+    },
+    {
+      "id": "M02",
+      "category": "multi_evidence",
+      "query": "怎么打开提示，进入后闪退又该怎样排查？",
+      "relevant": [
+        "operation#安装与按键",
+        "operation#稳定性诊断"
+      ],
+      "reason": "需要操作和诊断两段。"
+    },
+    {
+      "id": "M03",
+      "category": "multi_evidence",
+      "query": "网页Trace和桌面MCP调用记录是相同的吗？",
+      "relevant": [
+        "reliability#Trace 与记录范围",
+        "tools#桌面工具与网页问答"
+      ],
+      "reason": "需要执行入口和记录范围。"
+    },
+    {
+      "id": "M04",
+      "category": "multi_evidence",
+      "query": "未知天气怎么计分，默认的标记值又是多少？",
+      "relevant": [
+        "fishing#未知条件",
+        "fishing#地点与天气标记"
+      ],
+      "reason": "需要未知值语义及标记表。"
+    },
+    {
+      "id": "M05",
+      "category": "multi_evidence",
+      "query": "匿名事件有哪些信息，会不会跨房间识别人？",
+      "relevant": [
+        "operation#遭遇采集",
+        "operation#临时玩家标签"
+      ],
+      "reason": "需要事件字段和匿名标识限制。"
+    },
+    {
+      "id": "M06",
+      "category": "multi_evidence",
+      "query": "模型反复调用和接口503分别怎么处理？",
+      "relevant": [
+        "reliability#调用预算",
+        "reliability#重试与错误恢复"
+      ],
+      "reason": "需要循环预算和请求重试策略。"
+    },
+    {
+      "id": "M07",
+      "category": "multi_evidence",
+      "query": "改了鱼名如何核对旧名称和数据快照？",
+      "relevant": [
+        "operation#数据校验",
+        "versions#数据快照一致性"
+      ],
+      "reason": "需要名称修正清单和一致性流程。"
+    },
+    {
+      "id": "M08",
+      "category": "multi_evidence",
+      "query": "为什么精确数值要查工具，文档来源又如何追踪？",
+      "relevant": [
+        "tools#查询与解释的分工",
+        "reliability#引用与可信依据"
+      ],
+      "reason": "需要规则工具分工和引用机制。"
+    },
+    {
+      "id": "M09",
+      "category": "multi_evidence",
+      "query": "事件读取有没有条数限制，文件怎么避免一直变大？",
+      "relevant": [
+        "tools#检索与事件参数范围",
+        "versions#事件写入与轮转"
+      ],
+      "reason": "需要读取上限和写入轮转。"
+    },
+    {
+      "id": "M10",
+      "category": "multi_evidence",
+      "query": "工作台没候选会换竿吗，未知鱼竿又会怎样？",
+      "relevant": [
+        "versions#显式查询与插件回退",
+        "fishing#未知条件"
+      ],
+      "reason": "需要严格查询与错误条件说明。"
+    },
+    {
+      "id": "C01",
+      "category": "missing_context",
+      "query": "我现在能钓到什么？",
+      "relevant": [
+        "tools#当前状态与条件澄清"
+      ],
+      "reason": "问题没有现场条件，需要澄清。"
+    },
+    {
+      "id": "C02",
+      "category": "missing_context",
+      "query": "不知道天气时应该怎么查候选？",
+      "relevant": [
+        "fishing#未知条件"
+      ],
+      "reason": "未知天气不增加天气匹配分。"
+    },
+    {
+      "id": "C03",
+      "category": "missing_context",
+      "query": "池塘查鱼没填季节可以吗？",
+      "relevant": [
+        "fishing#未知条件"
+      ],
+      "reason": "池塘季节未知时需补充。"
+    },
+    {
+      "id": "C04",
+      "category": "missing_context",
+      "query": "只知道等级，还需要我提供哪些现场条件？",
+      "relevant": [
+        "tools#当前状态与条件澄清"
+      ],
+      "reason": "列出需询问的上下文。"
+    },
+    {
+      "id": "C05",
+      "category": "missing_context",
+      "query": "没认出鱼竿能直接随便换一根继续算吗？",
+      "relevant": [
+        "fishing#未知条件",
+        "versions#显式查询与插件回退"
+      ],
+      "reason": "未知鱼竿报错，工作台不自动更换。"
+    },
+    {
+      "id": "C06",
+      "category": "missing_context",
+      "query": "匿名事件里有我现在的天气和鱼竿吗？",
+      "relevant": [
+        "tools#当前状态与条件澄清"
+      ],
+      "reason": "说明事件不包含完整环境。"
+    },
+    {
+      "id": "C07",
+      "category": "missing_context",
+      "query": "time=0能说明现在是白天吗？",
+      "relevant": [
+        "fishing#地点与天气标记",
+        "tools#当前状态与条件澄清"
+      ],
+      "reason": "0为未知且不能从输入推断现场。"
+    },
+    {
+      "id": "C08",
+      "category": "missing_context",
+      "query": "地点不知道时如何筛选？",
+      "relevant": [
+        "fishing#未知条件"
+      ],
+      "reason": "未知具体地点按模式地点集合处理。"
+    },
+    {
+      "id": "C09",
+      "category": "missing_context",
+      "query": "工具不认识我输入的鱼名怎么办？",
+      "relevant": [
+        "fishing#未知条件"
+      ],
+      "reason": "未知鱼名返回参数错误。"
+    },
+    {
+      "id": "C10",
+      "category": "missing_context",
+      "query": "有匿名遭遇是不是就知道真实鱼种了？",
+      "relevant": [
+        "tools#当前状态与条件澄清"
+      ],
+      "reason": "事件不包含真实鱼种结论。"
+    },
+    {
+      "id": "N01",
+      "category": "no_answer",
+      "query": "下个月将会新增哪种鱼？",
+      "relevant": [],
+      "reason": "资料没有未来更新公告。"
+    },
+    {
+      "id": "N02",
+      "category": "no_answer",
+      "query": "帮我查玩家真实手机号和账号密码。",
+      "relevant": [],
+      "reason": "资料与事件均没有个人凭据。"
+    },
+    {
+      "id": "N03",
+      "category": "no_answer",
+      "query": "今天服务器的流星鱼真实掉落概率是多少？",
+      "relevant": [],
+      "reason": "环境分数不提供服务器真实概率。"
+    },
+    {
+      "id": "N04",
+      "category": "no_answer",
+      "query": "北京明天会不会下雨？",
+      "relevant": [],
+      "reason": "游戏天气说明不包含现实天气预报。"
+    },
+    {
+      "id": "N05",
+      "category": "no_answer",
+      "query": "这家公司的年终奖金是多少？",
+      "relevant": [],
+      "reason": "资料不涉及薪酬。"
+    },
+    {
+      "id": "N06",
+      "category": "no_answer",
+      "query": "我的信用卡账单该还多少钱？",
+      "relevant": [],
+      "reason": "资料没有金融账户信息。"
+    },
+    {
+      "id": "N07",
+      "category": "no_answer",
+      "query": "主机显卡现在的温度是多少？",
+      "relevant": [],
+      "reason": "资料不含实时硬件传感器值。"
+    },
+    {
+      "id": "N08",
+      "category": "no_answer",
+      "query": "现在有多少玩家在线？",
+      "relevant": [],
+      "reason": "事件通道不提供服务器在线人数。"
+    },
+    {
+      "id": "N09",
+      "category": "no_answer",
+      "query": "安装这个插件一定不会封号吗？",
+      "relevant": [],
+      "reason": "资料没有封号风险保证。"
+    },
+    {
+      "id": "N10",
+      "category": "no_answer",
+      "query": "这根鱼竿目前在商城卖多少钱？",
+      "relevant": [],
+      "reason": "鱼竿档案不包含实时价格。"
+    }
+  ]
+}

@@ -120,6 +120,7 @@ pwsh -NoProfile -File .\scripts\check-package.ps1 -Path .\artifacts\PA-Fish-Peek
 - [技术设计与执行链路](docs/technical-design.md)
 - [真实模型与 MCP 完整调用演示](docs/mcp-demo.md)
 - [关键设计决策](docs/engineering-decisions.md)
+- [中文检索评测与对照结果](docs/retrieval-evaluation.md)
 - [验证记录与实机验收](docs/validation.md)
 - [后续规划](docs/roadmap.md)
 - [2026-10-17 数据与天气审计](docs/fishpeek-data-audit-20261017.md)

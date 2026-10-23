@@ -1,0 +1,10 @@
+{
+  "revision": "knowledge-2026-10-23.2",
+  "files": {
+    "fishing.md": ["assistant/fishpeek/rules.py", "assistant/fishpeek/data/catalog.json"],
+    "operation.md": ["docs/technical-design.md", "docs/validation.md", "src/PAFishPeekPlugin/FishPeekPlugin.cs"],
+    "tools.md": ["assistant/fishpeek/tools.py", "assistant/fishpeek/mcp_server.py", "docs/workbench.md"],
+    "reliability.md": ["assistant/fishpeek/agent.py", "assistant/fishpeek/provider.py", "assistant/fishpeek/settings.py"],
+    "versions.md": ["scripts/export-catalog.py", "docs/technical-design.md", "src/PAFishPeekPlugin/FishPeekPlugin.Events.cs"]
+  }
+}
